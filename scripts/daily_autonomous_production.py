@@ -19,6 +19,8 @@ import sys
 import json
 import argparse
 import subprocess
+from pathlib import Path
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -230,24 +232,29 @@ def main():
     video_url = None
     if args.upload:
         print("\n🚀 Uploading to YouTube Shorts via YouTube Data API v3...")
-        uploader = YouTubeUploader()
-        desc = (
-            f"{story.get('description', '')}\n\n"
-            f"🔔 Follow Wild Mechanics for daily wildlife micro-stories.\n\n"
-            f"#shorts #wildlife #{animal_key.replace('_','')} #nature #animals #documentary #wildmechanics"
-        )
-        up_res = uploader.execute({
-            "video_path": str(master_video),
-            "title": yt_title,
-            "description": desc,
-            "tags": story.get("tags", ["shorts", "wildlife", "nature", "animals", "documentary", "wild mechanics"]),
-            "privacy_status": "public",
-            "category_id": "15",
-            "thumbnail_path": str(thumb_path)
-        })
-        if up_res.success:
-            video_url = up_res.data.get("video_url")
-            print(f"🎉 YouTube Upload Complete! URL: {video_url}")
+        try:
+            uploader = YouTubeUploader()
+            desc = (
+                f"{story.get('description', '')}\n\n"
+                f"🔔 Follow Wild Mechanics for daily wildlife micro-stories.\n\n"
+                f"#shorts #wildlife #{animal_key.replace('_','')} #nature #animals #documentary #wildmechanics"
+            )
+            up_res = uploader.execute({
+                "video_path": str(master_video),
+                "title": yt_title,
+                "description": desc,
+                "tags": story.get("tags", ["shorts", "wildlife", "nature", "animals", "documentary", "wild mechanics"]),
+                "privacy_status": "public",
+                "category_id": "15",
+                "thumbnail_path": str(thumb_path)
+            })
+            if up_res.success:
+                video_url = up_res.data.get("video_url")
+                print(f"🎉 YouTube Upload Complete! URL: {video_url}")
+            else:
+                print(f"⚠️ YouTube upload skipped or failed: {up_res.error}")
+        except Exception as e:
+            print(f"⚠️ YouTube upload skipped due to environment: {e}")
 
     # 8. Notifications
     if args.notify:
