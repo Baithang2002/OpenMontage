@@ -105,13 +105,32 @@ def main():
     source_file_rel = story.get("source_file", "")
     source_path = ROOT_DIR / source_file_rel if source_file_rel else None
 
-    # Auto find source video if not explicitly located
+    # Auto find source video if not explicitly located, or download via yt-dlp
     if not source_path or not source_path.exists():
         doc_dir = ROOT_DIR / "assets" / "documentaries" / animal_key.split("_")[0]
         if doc_dir.exists():
             files = list(doc_dir.glob("*.mp4"))
             if files:
                 source_path = files[0]
+
+    # Auto download on demand via yt-dlp if running in CI / missing footage
+    if (not source_path or not source_path.exists()) and story.get("yt_url"):
+        yt_url = story.get("yt_url")
+        print(f"\n⬇️ Source video missing on runner. Downloading on-demand via yt-dlp from: {yt_url}")
+        target_dest = ROOT_DIR / (source_file_rel if source_file_rel else f"assets/documentaries/{animal_key.split('_')[0]}/{animal_key}_source.mp4")
+        target_dest.parent.mkdir(parents=True, exist_ok=True)
+        cmd_dl = [
+            "yt-dlp",
+            yt_url,
+            "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "--merge-output-format", "mp4",
+            "-o", str(target_dest)
+        ]
+        try:
+            subprocess.run(cmd_dl, check=True)
+            source_path = target_dest
+        except Exception as e:
+            print(f"[WARN] yt-dlp download failed: {e}")
 
     if not source_path or not source_path.exists():
         print(f"[ERROR] Documentary source footage missing for {animal_name}: {source_path}")
