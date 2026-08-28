@@ -146,7 +146,7 @@ on_screen_layers:
   dynamic_action_badges:
     enabled: true
     description: "Pop-up badges and emojis timed to peak action moments — comic book style. Triggered by SFX keywords (strike, chase, roar)."
-    style: "scale-pop 0.2-0.3s, no background box"
+    style: "scale-pop 0.2-0.3s, Impact 46pt, Outline=3, no background box"
 
 # Dynamic Topic-Matched CTA
 cta:
