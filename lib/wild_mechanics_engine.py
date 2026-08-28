@@ -340,7 +340,7 @@ def generate_dynamic_cta_clip(
     temp_dir = output_clip_path.parent / "temp_cta"
     temp_dir.mkdir(parents=True, exist_ok=True)
     clean_slug = re.sub(r'[^a-zA-Z0-9_]', '_', animal_name)
-    voice_audio = temp_dir / f"cta_voice_{clean_slug}.mp3"
+    voice_audio = temp_dir / f"cta_voice_{clean_slug}.wav"
     
     # 1. Voice Synthesis (Snappy 2.5s CTA)
     cta_script = "Follow Wild Mechanics for more."
@@ -358,19 +358,26 @@ def generate_dynamic_cta_clip(
         try:
             res = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{eleven_voice_id}", json=data, headers=headers, timeout=10)
             if res.status_code == 200 and len(res.content) > 1000:
-                voice_audio.write_bytes(res.content)
+                raw_mp3 = temp_dir / f"cta_raw_{clean_slug}.mp3"
+                raw_mp3.write_bytes(res.content)
+                subprocess.run(["ffmpeg", "-y", "-i", str(raw_mp3), "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", str(voice_audio)], check=True)
                 voice_ready = True
         except Exception:
             pass
 
     if not voice_ready:
+        stock_cta = ROOT_DIR / "assets" / "audio" / "cta" / "short_cta_voice.wav"
         cached_cta = ROOT_DIR / "projects" / "grizzly_bear" / "assets" / "short_cta_voice.mp3"
-        if cached_cta.exists() and cached_cta.stat().st_size > 1000:
-            voice_audio.write_bytes(cached_cta.read_bytes())
+        
+        if stock_cta.exists() and stock_cta.stat().st_size > 1000:
+            subprocess.run(["ffmpeg", "-y", "-i", str(stock_cta), "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", str(voice_audio)], check=True)
+            voice_ready = True
+        elif cached_cta.exists() and cached_cta.stat().st_size > 1000:
+            subprocess.run(["ffmpeg", "-y", "-i", str(cached_cta), "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", str(voice_audio)], check=True)
             voice_ready = True
         else:
             # Fallback to pure silent/ambient stereo bed
-            cmd_null_vo = ["ffmpeg", "-y", "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo", "-t", str(duration_s), "-c:a", "aac", str(voice_audio)]
+            cmd_null_vo = ["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", str(duration_s), "-c:a", "pcm_s16le", str(voice_audio)]
             subprocess.run(cmd_null_vo, check=True)
             voice_ready = True
             
@@ -422,7 +429,7 @@ Dialogue: 0,0:00:01.60,0:00:02.50,CenterWord,,0,0,0,,FOR MORE.
             bgm_track = bgm_fallback
 
     # 4. Render CTA Video
-    escaped_ass = cta_ass.name.replace("'", "\\'")
+    escaped_ass = cta_ass.resolve().as_posix().replace(":", "\\:")
     filter_complex = (
         "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fade=t=in:st=0.0:d=0.2,eq=brightness=-0.10:contrast=1.05:saturation=1.12[bg];"
         f"[bg]ass='{escaped_ass}'[v];"
@@ -435,14 +442,14 @@ Dialogue: 0,0:00:01.60,0:00:02.50,CenterWord,,0,0,0,,FOR MORE.
         "ffmpeg", "-y",
         "-ss", "0.5",
         "-t", str(duration_s),
-        "-i", str(bg_video),
-        "-i", str(voice_audio),
-        "-i", str(bgm_track),
+        "-i", str(Path(bg_video).resolve()),
+        "-i", str(Path(voice_audio).resolve()),
+        "-i", str(Path(bgm_track).resolve()),
         "-filter_complex", filter_complex,
         "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-crf", "18", "-preset", "fast",
         "-c:a", "aac", "-b:a", "320k",
-        str(output_clip_path)
+        str(Path(output_clip_path).resolve())
     ]
-    subprocess.run(cmd, check=True, cwd=str(temp_dir))
+    subprocess.run(cmd, check=True)
     return output_clip_path
