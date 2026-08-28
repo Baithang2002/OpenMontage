@@ -50,7 +50,7 @@ from lib.wild_mechanics_engine import (
 from faster_whisper import WhisperModel
 from tools.publishers.youtube_uploader import YouTubeUploader
 from lib.notifier import NotificationDispatcher
-from tools.storage.gdrive_downloader import download_file_from_google_drive
+from tools.storage.gdrive_downloader import download_file_from_google_drive, sync_from_gdrive_folder
 
 QUEUE_FILE = ROOT_DIR / "config" / "wildlife_story_queue.json"
 
@@ -122,6 +122,14 @@ def main():
         print(f"\n📁 Source video missing on runner. Pulling from Google Drive: {gdrive_target}")
         gdrive_success = download_file_from_google_drive(gdrive_target, target_dest)
         if gdrive_success and target_dest.exists():
+            source_path = target_dest
+
+    # 1b. Master Google Drive Folder Sync
+    master_folder = story.get("gdrive_folder") or os.environ.get("GDRIVE_MASTER_FOLDER", "https://drive.google.com/drive/folders/1ywnMZUJ85Afy7swh-m7CNbvM3bVeKxDJ")
+    if (not source_path or not source_path.exists()) and master_folder:
+        print(f"\n📁 Checking master Google Drive folder for {target_dest.name}...")
+        sync_from_gdrive_folder(master_folder, target_dest.parent)
+        if target_dest.exists():
             source_path = target_dest
 
     # 2. Fallback Storage: yt-dlp on-demand stream

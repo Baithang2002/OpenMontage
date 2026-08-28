@@ -113,6 +113,25 @@ def download_file_from_google_drive(id_or_url: str, destination: Path) -> bool:
     return True
 
 
+def sync_from_gdrive_folder(folder_url_or_id: str, output_dir: Path) -> list:
+    """
+    Syncs all media files from a Google Drive folder into the specified output directory.
+    """
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    folder_id = extract_gdrive_id(folder_url_or_id)
+    folder_url = f"https://drive.google.com/drive/folders/{folder_id}"
+    
+    logger.info(f"[GDRIVE] Syncing folder: {folder_url} -> {output_dir}")
+    try:
+        import gdown
+        downloaded = gdown.download_folder(folder_url, output=str(output_dir), quiet=False, use_cookies=False)
+        return downloaded or []
+    except Exception as e:
+        logger.error(f"[GDRIVE] Failed to sync folder via gdown: {e}")
+        return []
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python gdrive_downloader.py <GDRIVE_URL_OR_ID> <OUTPUT_PATH>")
