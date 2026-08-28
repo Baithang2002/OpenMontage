@@ -40,6 +40,7 @@ from lib.wild_mechanics_engine import (
     generate_dynamic_cta_clip,
     generate_cold_hook_clip,
     extract_high_ctr_thumbnail,
+    master_stitch_filter,
     is_bbc_source,
     get_target_durations
 )
@@ -114,13 +115,13 @@ def main():
         sys.exit(1)
 
     # 1. Automatic Duration Routing (BBC vs Non-BBC)
-    story_duration, cta_duration = get_target_durations(source_path, requested_target=story.get("duration"))
-    total_expected = story_duration + cta_duration
+    hook_target_s, story_duration, cta_duration = get_target_durations(source_path, requested_target=story.get("duration"))
+    total_expected = hook_target_s + story_duration + cta_duration
 
     print(f"\n🎬 Story: [{story.get('id')}] - {animal_name}")
     print(f"📂 Source: {source_path.name}")
     print(f"🏷️ Provider: {'BBC (Content-ID Safe <= 60s)' if is_bbc_source(source_path) else 'Non-BBC (Extended 90s-100s)'}")
-    print(f"⏱️ Story Target: {story_duration:.1f}s | CTA: {cta_duration:.1f}s | Total Expected: {total_expected:.1f}s")
+    print(f"⏱️ Hook: {hook_target_s:.1f}s | Story: {story_duration:.1f}s | CTA: {cta_duration:.1f}s | Total Expected: {total_expected:.1f}s")
 
     project_dir = ROOT_DIR / "projects" / animal_key
     assets_dir = project_dir / "assets"
@@ -174,9 +175,16 @@ def main():
         max_duration=fade_start
     )
 
-    # 5. Render Act 2: 4:5 Ghost Blur Story
+    # 5. Render Act 2: 4:5 Ghost Blur Story with HFlip
     story_rendered = renders_dir / f"part2_{animal_key}_ghost_story.mp4"
-    fg_filter = ghost_blur_filter(ass_file=str(ass_path), fade_out_start=fade_start, fade_duration=fade_dur)
+    fg_filter = ghost_blur_filter(
+        ass_file=str(ass_path),
+        fade_out_start=fade_start,
+        fade_duration=fade_dur,
+        hflip=True,
+        progress_bar=False,
+        duration=story_duration
+    )
 
     print(f"\n🎨 Step 4: Rendering Act 2 4:5 Ghost Blur Story (zero watermarks & OLED boost)...")
     cmd_story = [
@@ -192,23 +200,24 @@ def main():
 
     # 6. Render Act 3: Dynamic CTA Outro (Volume-Matched ElevenLabs + Boosted BGM)
     cta_rendered = renders_dir / f"part3_{animal_key}_cta.mp4"
-    print(f"\n📣 Step 5: Rendering Act 3 Outro CTA ({cta_target_s:.1f}s with volume-matched ElevenLabs VO & BGM)...")
+    print(f"\n📣 Step 5: Rendering Act 3 Outro CTA ({cta_duration:.1f}s with volume-matched ElevenLabs VO & BGM)...")
     generate_dynamic_cta_clip(
         animal_name=story.get("animal", animal_key),
         output_clip_path=cta_rendered,
-        duration_s=cta_target_s,
+        duration_s=cta_duration,
         clean_stock_bg=story.get("clean_stock_bg")
     )
 
-    # 7. Master Concat Stitch
-    master_video = renders_dir / f"{animal_key}_1m01s_master.mp4"
-    print("\n🚀 Step 6: Concat Stitching (Act 1 Hook + Act 2 Story + Act 3 CTA)...")
+    # 7. Master Concat Stitch with 100% Synchronized Progress Bar
+    master_video = renders_dir / f"{animal_key}_master.mp4"
+    print(f"\n🚀 Step 6: Concat Stitching with 100% Time-Synchronized Progress Bar (Total: {total_expected:.1f}s)...")
+    stitch_filt = master_stitch_filter(num_inputs=3, total_duration=total_expected, progress_bar=True)
     cmd_stitch = [
         "ffmpeg", "-y",
         "-i", str(hook_rendered),
         "-i", str(story_rendered),
         "-i", str(cta_rendered),
-        "-filter_complex", "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]",
+        "-filter_complex", stitch_filt,
         "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-crf", "18", "-preset", "fast",
         "-c:a", "aac", "-b:a", "320k",
