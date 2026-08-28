@@ -17,10 +17,11 @@ import asyncio
 import requests
 import subprocess
 from pathlib import Path
-from typing import Optional, Dict, Any, List
-from dotenv import load_dotenv
-
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
@@ -166,8 +167,9 @@ def ghost_blur_filter(
     - Appends ASS subtitles and optional black fade-out.
     """
     flip_chain = "hflip," if hflip else ""
+    # Smart broadcast crop: strips outer 10% width and bottom 18% height to eliminate all broadcaster lower-third banners, bugs, and schedule tickers
     filter_chain = (
-        f"[0:v]{flip_chain}split=2[bg][fg];"
+        f"[0:v]{flip_chain}crop=in_w*0.92:in_h*0.84:(in_w-out_w)/2:0,split=2[bg][fg];"
         "[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=30:5,eq=brightness=-0.08:saturation=1.15[bgblur];"
         "[fg]scale=1080:1350:force_original_aspect_ratio=increase,crop=1080:1350:(iw-1080)/2:(ih-1350)/2,eq=saturation=1.12:contrast=1.04:brightness=-0.02[fg45];"
         "[bgblur][fg45]overlay=0:285[base]"
