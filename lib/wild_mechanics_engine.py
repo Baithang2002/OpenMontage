@@ -162,25 +162,45 @@ def ghost_blur_filter(
     progress_bar: bool = True,
     duration: Optional[float] = None,
     time_offset: float = 0.0,
-    total_duration: Optional[float] = None
+    total_duration: Optional[float] = None,
+    crop_mode: str = "subject_4_5",
+    x_align: str = "center"
 ) -> str:
     """
     Generates the official Wild Mechanics 4:5 Ghost Blur FFmpeg filtergraph:
     - hflip: Horizontal flip on footage for 100% visual Content-ID evasion.
+    - crop_mode:
+        * 'subject_4_5' (Default / Standard): Preserves 100% vertical height (1080px from top to bottom),
+          extracts the true 4:5 window (864x1080) directly centered on the animal subject, and scales to 1080x1350.
+          Corner watermarks (e.g. Nat Geo WILD on bottom right) are naturally discarded outside the 864px window!
+        * 'broadcast_crop': Strips bottom 16% specifically for broadcasts with full-width lower-third text tickers.
+    - x_align: 'center' (default), 'left', 'right', or horizontal ratio expression.
     - Background: 1080x1920 ambient blur (boxblur=30:5, brightness=-0.08, saturation=1.15).
     - Foreground: 1080x1350 (4:5) centered at Y=285 (saturation=1.12, contrast=1.04).
-    - Progress Bar: Animated top yellow progress bar (Y=0, H=16px).
-    - Eliminates 100% of broadcaster corner watermarks.
-    - Appends ASS subtitles and optional black fade-out.
     """
     flip_chain = "hflip," if hflip else ""
-    # Smart broadcast crop: strips outer 10% width and bottom 18% height to eliminate all broadcaster lower-third banners, bugs, and schedule tickers
-    filter_chain = (
-        f"[0:v]{flip_chain}crop=in_w*0.92:in_h*0.84:(in_w-out_w)/2:0,split=2[bg][fg];"
-        "[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=30:5,eq=brightness=-0.08:saturation=1.15[bgblur];"
-        "[fg]scale=1080:1350:force_original_aspect_ratio=increase,crop=1080:1350:(iw-1080)/2:(ih-1350)/2,eq=saturation=1.12:contrast=1.04:brightness=-0.02[fg45];"
-        "[bgblur][fg45]overlay=0:285[base]"
-    )
+    
+    if crop_mode == "broadcast_crop":
+        filter_chain = (
+            f"[0:v]{flip_chain}crop=in_w*0.92:in_h*0.84:(in_w-out_w)/2:0,split=2[bg][fg];"
+            "[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=30:5,eq=brightness=-0.08:saturation=1.15[bgblur];"
+            "[fg]scale=1080:1350:force_original_aspect_ratio=increase,crop=1080:1350:(iw-1080)/2:(ih-1350)/2,eq=saturation=1.12:contrast=1.04:brightness=-0.02[fg45];"
+            "[bgblur][fg45]overlay=0:285[base]"
+        )
+    else:
+        if x_align == "left":
+            x_expr = "(in_w-out_w)*0.15"
+        elif x_align == "right":
+            x_expr = "(in_w-out_w)*0.85"
+        else:
+            x_expr = "(in_w-out_w)/2"
+            
+        filter_chain = (
+            f"[0:v]{flip_chain}split=2[bg_raw][fg_raw];"
+            "[bg_raw]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=30:5,eq=brightness=-0.08:saturation=1.15[bgblur];"
+            f"[fg_raw]crop=in_h*4/5:in_h:{x_expr}:0,scale=1080:1350,eq=saturation=1.12:contrast=1.04:brightness=-0.02[fg45];"
+            "[bgblur][fg45]overlay=0:285[base]"
+        )
     
     post_filters = []
     if progress_bar:

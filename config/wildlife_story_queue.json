@@ -12,6 +12,7 @@
       "start": 0.0,
       "hook_start": 35.0,
       "duration": 94.5,
+      "crop_mode": "broadcast_crop",
       "tags": [
         "shorts",
         "honey badger",

@@ -225,7 +225,9 @@ def main():
         fade_duration=fade_dur,
         hflip=True,
         progress_bar=False,
-        duration=story_duration
+        duration=story_duration,
+        crop_mode=story.get("crop_mode", "subject_4_5"),
+        x_align=story.get("crop_x_align", "center")
     )
 
     print(f"\n🎨 Step 4: Rendering Act 2 4:5 Ghost Blur Story (zero watermarks & OLED boost)...")
@@ -238,7 +240,7 @@ def main():
         "-c:a", "aac", "-b:a", "320k",
         str(story_rendered)
     ]
-    subprocess.run(cmd_story, check=True, cwd=str(assets_dir))
+    subprocess.run(cmd_story, check=True)
 
     # 6. Render Act 3: Dynamic CTA Outro (Volume-Matched ElevenLabs + Boosted BGM)
     cta_rendered = renders_dir / f"part3_{animal_key}_cta.mp4"
