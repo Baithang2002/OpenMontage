@@ -53,7 +53,7 @@ def master_stitch_filter(num_inputs: int = 3, total_duration: float = 61.0, prog
     and a 100% time-synchronized, fluid animated yellow progress bar.
     """
     prep_v = ";".join(f"[{i}:v]setsar=1,fps=30[v{i}]" for i in range(num_inputs))
-    prep_a = ";".join(f"[{i}:a]aformat=sample_rates=48000:channel_layouts=stereo[a{i}]" for i in range(num_inputs))
+    prep_a = ";".join(f"[{i}:a]aformat=sample_rates=48000:channel_layouts=stereo,aresample=48000[a{i}]" for i in range(num_inputs))
     inputs_str = "".join(f"[v{i}][a{i}]" for i in range(num_inputs))
     
     concat_part = f"{prep_v};{prep_a};{inputs_str}concat=n={num_inputs}:v=1:a=1[v_raw][a]"
@@ -433,9 +433,9 @@ Dialogue: 0,0:00:01.60,0:00:02.50,CenterWord,,0,0,0,,FOR MORE.
     filter_complex = (
         "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fade=t=in:st=0.0:d=0.2,eq=brightness=-0.10:contrast=1.05:saturation=1.12[bg];"
         f"[bg]ass='{escaped_ass}'[v];"
-        "[1:a]loudnorm=I=-14:TP=-1.5:LRA=11[norm_vo];"
-        f"[2:a]volume={bgm_volume:.2f},afade=t=in:st=0.0:d=0.2,afade=t=out:st={duration_s-0.5:.2f}:d=0.5[bgm];"
-        "[norm_vo][bgm]amix=inputs=2:duration=first:dropout_transition=2[a]"
+        "[1:a]volume=1.4,aformat=sample_rates=48000:channel_layouts=stereo[vo];"
+        f"[2:a]volume={bgm_volume:.2f},aformat=sample_rates=48000:channel_layouts=stereo,afade=t=in:st=0.0:d=0.2,afade=t=out:st={duration_s-0.5:.2f}:d=0.5[bgm];"
+        f"[vo][bgm]amix=inputs=2:duration=longest:dropout_transition=0,atrim=0:{duration_s:.2f},apad=whole_dur={duration_s:.2f}[a]"
     )
     
     cmd = [
