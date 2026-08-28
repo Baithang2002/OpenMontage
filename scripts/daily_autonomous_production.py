@@ -50,6 +50,7 @@ from lib.wild_mechanics_engine import (
 from faster_whisper import WhisperModel
 from tools.publishers.youtube_uploader import YouTubeUploader
 from lib.notifier import NotificationDispatcher
+from tools.storage.gdrive_downloader import download_file_from_google_drive
 
 QUEUE_FILE = ROOT_DIR / "config" / "wildlife_story_queue.json"
 
@@ -105,7 +106,7 @@ def main():
     source_file_rel = story.get("source_file", "")
     source_path = ROOT_DIR / source_file_rel if source_file_rel else None
 
-    # Auto find source video if not explicitly located, or download via yt-dlp
+    # Auto find source video if not explicitly located
     if not source_path or not source_path.exists():
         doc_dir = ROOT_DIR / "assets" / "documentaries" / animal_key.split("_")[0]
         if doc_dir.exists():
@@ -113,11 +114,20 @@ def main():
             if files:
                 source_path = files[0]
 
-    # Auto download on demand via yt-dlp if running in CI / missing footage
+    target_dest = ROOT_DIR / (source_file_rel if source_file_rel else f"assets/documentaries/{animal_key.split('_')[0]}/{animal_key}_source.mp4")
+
+    # 1. Primary Cloud Storage: Google Drive on-demand download
+    gdrive_target = story.get("gdrive_id") or story.get("gdrive_url")
+    if (not source_path or not source_path.exists()) and gdrive_target:
+        print(f"\n📁 Source video missing on runner. Pulling from Google Drive: {gdrive_target}")
+        gdrive_success = download_file_from_google_drive(gdrive_target, target_dest)
+        if gdrive_success and target_dest.exists():
+            source_path = target_dest
+
+    # 2. Fallback Storage: yt-dlp on-demand stream
     if (not source_path or not source_path.exists()) and story.get("yt_url"):
         yt_url = story.get("yt_url")
-        print(f"\n⬇️ Source video missing on runner. Downloading on-demand via yt-dlp from: {yt_url}")
-        target_dest = ROOT_DIR / (source_file_rel if source_file_rel else f"assets/documentaries/{animal_key.split('_')[0]}/{animal_key}_source.mp4")
+        print(f"\n⬇️ Source video missing. Downloading via yt-dlp fallback from: {yt_url}")
         target_dest.parent.mkdir(parents=True, exist_ok=True)
         cmd_dl = [
             "yt-dlp",

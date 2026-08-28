@@ -36,7 +36,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install python-dotenv pillow requests yt-dlp google-api-python-client google-auth-oauthlib faster-whisper
+          pip install python-dotenv pillow requests yt-dlp google-api-python-client google-auth-oauthlib faster-whisper gdown
 
       - name: Execute Daily Short & Publish to YouTube
         env:
