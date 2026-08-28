@@ -131,7 +131,7 @@ Dialogue: 1,0:00:00.00,0:00:03.00,TopTitle,,0,0,0,,{{\\fad(100,100)}}{hook_title
         "-c:a", "aac", "-b:a", "320k",
         str(output_clip_path)
     ]
-    subprocess.run(cmd_render, check=True, cwd=str(temp_dir))
+    subprocess.run(cmd_render, check=True)
     return output_clip_path
 
 
@@ -188,7 +188,7 @@ def ghost_blur_filter(
         post_filters.append(f"drawbox=x=0:y=0:w='min(iw,iw*(({time_offset:.2f}+t)/{tot_dur:.2f}))':h=16:color=yellow@1:t=fill")
         
     if ass_file:
-        escaped_ass = Path(ass_file).name.replace("'", "\\'")
+        escaped_ass = Path(ass_file).resolve().as_posix().replace(":", "\\:")
         post_filters.append(f"ass='{escaped_ass}'")
         
     if fade_out_start is not None and fade_out_start > 0:
