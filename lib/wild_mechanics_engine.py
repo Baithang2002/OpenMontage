@@ -17,6 +17,8 @@ import asyncio
 import requests
 import subprocess
 from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -221,18 +223,23 @@ def audio_pitch_and_fade_filter(fade_out_start: Optional[float] = None, fade_dur
 # -------------------------------------------------------------
 def build_ass_subtitles(
     segments: List[Any],
-    output_path: Path,
-    title_hook: str,
+    output_path: Optional[Path] = None,
+    title_hook: str = "WILD MECHANICS",
+    animal_name: str = "",
     action_badges: Optional[List[Dict[str, Any]]] = None,
     max_duration: Optional[float] = None,
+    output_ass_path: Optional[Path] = None,
 ) -> Path:
-    """
+    r"""
     Builds the official Wild Mechanics ASS subtitle file matching the exact Jaguar video standard:
     - TopBrand: WILD MECHANICS (Impact 32, Diamond White &H00FFFFFF, MarginV=130, Outline=2, Shadow=2)
     - TopTitle: Curiosity Hook (Impact 48, Vivid Gold/Yellow &H0000D7FF, MarginV=180, Outline=3, Shadow=2)
     - BottomKaraoke: Word-level kinetic karaoke (\k tags, #FFFF00 active) (Impact 52, MarginV=420)
-    - MidBadge: Action badges timed to peak moments (Impact 64, Vivid Gold)
+    - MidBadge: Action badges timed to peak moments (Impact 46, Vivid Gold)
     """
+    out_file = output_ass_path or output_path
+    if not out_file:
+        raise ValueError("output_path or output_ass_path must be provided")
     ass_header = """[Script Info]
 ScriptType: v4.00+
 PlayResX: 1080
@@ -299,8 +306,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             end_str = format_ass_time(c_end)
             events.append(f"Dialogue: 0,{start_str},{end_str},BottomKaraoke,,0,0,0,,{k_text.strip()}")
             
-    output_path.write_text(ass_header + "\n".join(events) + "\n", encoding="utf-8")
-    return output_path
+    out_file.write_text(ass_header + "\n".join(events) + "\n", encoding="utf-8")
+    return out_file
 
 
 def format_ass_time(sec: float) -> str:
