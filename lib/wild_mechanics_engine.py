@@ -47,19 +47,24 @@ def get_target_durations(file_path: Path | str, requested_target: Optional[float
 
 def master_stitch_filter(num_inputs: int = 3, total_duration: float = 61.0, progress_bar: bool = True) -> str:
     """
-    Generates the master concat filtergraph with a 100% time-synchronized, fluid animated yellow progress bar.
+    Generates the master concat filtergraph with standardized SAR=1:1, FPS=30, Stereo 48kHz audio,
+    and a 100% time-synchronized, fluid animated yellow progress bar.
     """
-    inputs_str = "".join(f"[{i}:v][{i}:a]" for i in range(num_inputs))
+    prep_v = ";".join(f"[{i}:v]setsar=1,fps=30[v{i}]" for i in range(num_inputs))
+    prep_a = ";".join(f"[{i}:a]aformat=sample_rates=48000:channel_layouts=stereo[a{i}]" for i in range(num_inputs))
+    inputs_str = "".join(f"[v{i}][a{i}]" for i in range(num_inputs))
+    
+    concat_part = f"{prep_v};{prep_a};{inputs_str}concat=n={num_inputs}:v=1:a=1[v_raw][a]"
     if progress_bar:
         return (
-            f"{inputs_str}concat=n={num_inputs}:v=1:a=1[v_raw][a];"
+            f"{concat_part};"
             f"color=c=black@0.4:s=1080x16:d={total_duration:.2f}[pbg];"
             f"color=c=yellow:s=1080x16:d={total_duration:.2f}[pbar];"
             f"[v_raw][pbg]overlay=0:0[v_bg];"
             f"[v_bg][pbar]overlay=x='min(0,-1080+1080*(t/{total_duration:.2f}))':y=0[v]"
         )
     else:
-        return f"{inputs_str}concat=n={num_inputs}:v=1:a=1[v][a]"
+        return f"{concat_part};[v_raw]copy[v]"
 
 
 def generate_cold_hook_clip(
