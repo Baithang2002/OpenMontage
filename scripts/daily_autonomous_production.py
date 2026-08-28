@@ -121,10 +121,12 @@ def main():
         target_dest.parent.mkdir(parents=True, exist_ok=True)
         cmd_dl = [
             "yt-dlp",
-            yt_url,
+            "--extractor-args", "youtube:player_client=android,ios,mweb",
+            "--no-check-certificates",
             "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
             "--merge-output-format", "mp4",
-            "-o", str(target_dest)
+            "-o", str(target_dest),
+            yt_url
         ]
         try:
             subprocess.run(cmd_dl, check=True)
