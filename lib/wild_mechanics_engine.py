@@ -339,7 +339,8 @@ def generate_dynamic_cta_clip(
     """
     temp_dir = output_clip_path.parent / "temp_cta"
     temp_dir.mkdir(parents=True, exist_ok=True)
-    voice_audio = temp_dir / f"cta_voice_{animal_name}.mp3"
+    clean_slug = re.sub(r'[^a-zA-Z0-9_]', '_', animal_name)
+    voice_audio = temp_dir / f"cta_voice_{clean_slug}.mp3"
     
     # 1. Voice Synthesis (Snappy 2.5s CTA)
     cta_script = "Follow Wild Mechanics for more."
@@ -356,17 +357,21 @@ def generate_dynamic_cta_clip(
         }
         try:
             res = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{eleven_voice_id}", json=data, headers=headers, timeout=10)
-            if res.status_code == 200:
+            if res.status_code == 200 and len(res.content) > 1000:
                 voice_audio.write_bytes(res.content)
                 voice_ready = True
         except Exception:
             pass
 
     if not voice_ready:
-        # Fallback to pre-synthesized CTA voice or Speechify
         cached_cta = ROOT_DIR / "projects" / "grizzly_bear" / "assets" / "short_cta_voice.mp3"
-        if cached_cta.exists():
+        if cached_cta.exists() and cached_cta.stat().st_size > 1000:
             voice_audio.write_bytes(cached_cta.read_bytes())
+            voice_ready = True
+        else:
+            # Fallback to pure silent/ambient stereo bed
+            cmd_null_vo = ["ffmpeg", "-y", "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo", "-t", str(duration_s), "-c:a", "aac", str(voice_audio)]
+            subprocess.run(cmd_null_vo, check=True)
             voice_ready = True
             
     # 2. Build Centered ASS Kinetic Bursts (FOLLOW -> WILD MECHANICS -> FOR MORE)
@@ -402,13 +407,19 @@ Dialogue: 0,0:00:01.60,0:00:02.50,CenterWord,,0,0,0,,FOR MORE.
         if fallback_bg.exists():
             bg_video = fallback_bg
         else:
-            # Generate black/dark ambient video
             bg_video = temp_dir / "cta_ambient_bg.mp4"
             cmd_gen = ["ffmpeg", "-y", "-f", "lavfi", "-i", f"color=c=black:s=1080x1920:d={duration_s:.2f}", "-c:v", "libx264", "-t", str(duration_s), str(bg_video)]
             subprocess.run(cmd_gen, check=True)
 
     if bgm_track is None or not Path(bgm_track).exists():
-        bgm_track = ROOT_DIR / "assets" / "audio" / "bgm" / "nature_suspense_bgm.wav"
+        stock_bgm = ROOT_DIR / "assets" / "audio" / "bgm" / "nature_suspense_bgm.wav"
+        if stock_bgm.exists():
+            bgm_track = stock_bgm
+        else:
+            bgm_fallback = temp_dir / "cta_bgm_fallback.wav"
+            cmd_null_bgm = ["ffmpeg", "-y", "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo", "-t", str(duration_s), str(bgm_fallback)]
+            subprocess.run(cmd_null_bgm, check=True)
+            bgm_track = bgm_fallback
 
     # 4. Render CTA Video
     escaped_ass = cta_ass.name.replace("'", "\\'")
