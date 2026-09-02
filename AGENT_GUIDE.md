@@ -56,7 +56,14 @@ When the user asks to make, create, produce, or generate any video content — a
 2. **Read the pipeline manifest.** `pipeline_defs/<pipeline>.yaml` — know the stages, tools, and quality gates.
 3. **Run preflight.** Discover available tools via the registry. Present the capability menu.
 4. **Execute stage by stage.** For EACH stage, read the stage director skill (`skills/pipelines/<pipeline>/<stage>-director.md`) BEFORE doing any work in that stage.
-5. **Read Layer 3 skills before calling tools.** Before using any tool with an `agent_skills` field, read the referenced skill in `.agents/skills/`. These contain provider-specific prompting guidance, parameter optimization, and quality techniques that dramatically improve output.
+
+### Mandatory YouTube Shorts Standards
+For any vertical video or Shorts production, always adhere to [`.agents/rules/shorts_production_standards.md`](.agents/rules/shorts_production_standards.md):
+- **Aspect Ratio**: 9:16 vertical (1080x1920) with centered **4:5 main footage ratio** (1080x1350) + **Ghost Blur background (`hflip`)**.
+- **Top Progress Bar**: Animated yellow progress bar (`#FFCC00`, 8px height).
+- **Letterbox Cropping**: Crop all black letterbox bars (`crop=1920:1024:0:28`).
+- **Content Purity**: Strictly pure animal/nature footage (zero cartoons, maps, or humans).
+- **Duration**: Up to 3 minutes (180s) maximum, fully utilized for a complete, rich narrative.
 
 **Do NOT:**
 - Write ad-hoc Python scripts to call tools directly

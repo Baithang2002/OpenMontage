@@ -8,7 +8,7 @@ Executes automatically on GitHub Actions cron (3x daily) or local manual trigger
    - Pitch modulated documentary audio (anti-Content-ID) + 0.8s black fade
    - Word-level kinetic yellow karaoke at YouTube Shorts safe-zone (MarginV=460)
    - Top Header (WILD MECHANICS + Curiosity Hook Title)
-   - Dynamic Outro CTA (ElevenLabs Voice ID from .env + Boosted BGM)
+   - Fixed master CTA outro from assets/branding/wild_mechanics_master_cta.mp4
 3. Uploads directly to YouTube Shorts via YouTube Data API v3
 4. Dispatches rich Discord & Telegram notification
 5. Advances queue index for the next run
@@ -70,7 +70,7 @@ def save_queue(queue_data: dict):
 def main():
     parser = argparse.ArgumentParser(description="Wild Mechanics Daily Autonomous Producer")
     parser.add_argument("--upload", action="store_true", help="Upload rendered video directly to YouTube")
-    parser.add_argument("--notify", action="store_true", default=True, help="Send Discord/Telegram notification")
+    parser.add_argument("--notify", action="store_true", help="Send Discord/Telegram notification")
     parser.add_argument("--story-id", type=str, default=None, help="Produce a specific story by ID")
     args = parser.parse_args()
 
@@ -158,6 +158,18 @@ def main():
 
     # 1. Automatic Duration Routing (BBC vs Non-BBC)
     hook_target_s, story_duration, cta_duration = get_target_durations(source_path, requested_target=story.get("duration"))
+    hook_target_s = float(story.get("hook_duration", hook_target_s))
+    if story.get("total_duration"):
+        cta_path = ROOT_DIR / "assets" / "branding" / "wild_mechanics_master_cta.mp4"
+        if cta_path.exists():
+            try:
+                cta_duration = float(subprocess.check_output([
+                    "ffprobe", "-v", "error", "-show_entries", "format=duration",
+                    "-of", "default=noprint_wrappers=1:nokey=1", str(cta_path)
+                ], text=True).strip())
+            except Exception as e:
+                print(f"[WARN] Could not probe master CTA duration, using default {cta_duration:.2f}s: {e}")
+        story_duration = max(0.1, float(story["total_duration"]) - hook_target_s - cta_duration)
     total_expected = hook_target_s + story_duration + cta_duration
 
     print(f"\n🎬 Story: [{story.get('id')}] - {animal_name}")
@@ -242,9 +254,9 @@ def main():
     ]
     subprocess.run(cmd_story, check=True)
 
-    # 6. Render Act 3: Dynamic CTA Outro (Volume-Matched ElevenLabs + Boosted BGM)
+    # 6. Copy Act 3: Fixed master CTA Outro
     cta_rendered = renders_dir / f"part3_{animal_key}_cta.mp4"
-    print(f"\n📣 Step 5: Rendering Act 3 Outro CTA ({cta_duration:.1f}s with volume-matched ElevenLabs VO & BGM)...")
+    print(f"\n📣 Step 5: Copying fixed master CTA ({cta_duration:.1f}s)...")
     generate_dynamic_cta_clip(
         animal_name=story.get("animal", animal_key),
         output_clip_path=cta_rendered,
@@ -272,7 +284,7 @@ def main():
 
     # 7. Extract High-CTR Thumbnail & Upload to YouTube
     thumb_path = renders_dir / f"{animal_key}_thumbnail.jpg"
-    extract_high_ctr_thumbnail(master_video, thumb_path, timestamp_s=1.5)
+    extract_high_ctr_thumbnail(master_video, thumb_path, timestamp_s=float(story.get("thumbnail_timestamp", 1.5)))
     print(f"🖼️ High-CTR Thumbnail Generated: {thumb_path.name}")
 
     video_url = None

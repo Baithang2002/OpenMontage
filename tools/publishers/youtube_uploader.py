@@ -122,6 +122,9 @@ class YouTubeUploader(BaseTool):
                     "selfDeclaredMadeForKids": False,
                 },
             }
+            if inputs.get("publish_at"):
+                body["status"]["privacyStatus"] = "private"
+                body["status"]["publishAt"] = inputs["publish_at"]
 
             media = MediaFileUpload(
                 str(video_path),
@@ -136,11 +139,25 @@ class YouTubeUploader(BaseTool):
                 media_body=media,
             )
 
+            import socket
+            socket.setdefaulttimeout(120)
+
             response = None
+            retry_count = 0
+            max_retries = 10
             while response is None:
-                status, response = request.next_chunk()
-                if status:
-                    print(f"[YOUTUBE UPLOAD] Progress: {int(status.progress() * 100)}%")
+                try:
+                    status, response = request.next_chunk()
+                    if status:
+                        print(f"[YOUTUBE UPLOAD] Progress: {int(status.progress() * 100)}%")
+                    retry_count = 0
+                except Exception as ex:
+                    retry_count += 1
+                    if retry_count > max_retries:
+                        raise
+                    sleep_sec = min(30, 2 ** retry_count)
+                    print(f"[YOUTUBE UPLOAD] Chunk transfer interrupted ({ex}). Retrying in {sleep_sec}s (attempt {retry_count}/{max_retries})...")
+                    time.sleep(sleep_sec)
 
             video_id = response.get("id")
             video_url = f"https://youtube.com/shorts/{video_id}"

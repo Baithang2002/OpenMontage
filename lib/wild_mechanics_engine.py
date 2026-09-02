@@ -7,14 +7,9 @@ Includes:
 - Word-Level Kinetic Karaoke Subtitles (ASS \\k tags, #FFFF00 active yellow)
 - YouTube Shorts Safe-Zone Subtitle Alignment (MarginV=460)
 - Top Header Branding & Curiosity Hook Titles (Y=105 / Y=165)
-- Dynamic Outro CTA Generator with ElevenLabs Voice & Mixed Background Music Bed (volume=0.35)
+- Fixed master CTA copier for assets/branding/wild_mechanics_master_cta.mp4
 """
 
-import os
-import re
-import json
-import asyncio
-import requests
 import subprocess
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
@@ -35,15 +30,15 @@ def is_bbc_source(file_path: Path | str) -> bool:
 def get_target_durations(file_path: Path | str, requested_target: Optional[float] = None) -> tuple[float, float, float]:
     """
     Returns (hook_target_s, story_target_s, cta_target_s) matching channel benchmarks:
-    - BBC Source: Hook = 3.0s, Story = 55.5s, CTA = 2.5s (Total = 61.0s, exactly 1:01 on YouTube)
-    - Non-BBC Source: Hook = 3.0s, Story = 70.0s+ (requested duration > 60s), CTA = 2.5s (Total = 75.5s+)
+    - BBC Source: Hook = 3.0s, Story = 54.2s, CTA = 3.8s (Total = 61.0s, exactly 1:01 on YouTube)
+    - Non-BBC Source: Hook = 3.0s, Story = 90.0s, CTA = 3.8s (Total = 96.8s, extended short)
     """
     hook_s = 3.0
-    cta_s = 2.5
+    cta_s = 3.8
     if is_bbc_source(file_path):
-        story_s = 55.5 if requested_target is None or requested_target > 58.0 else requested_target
+        story_s = 54.2 if requested_target is None or requested_target > 56.0 else requested_target
     else:
-        story_s = requested_target if requested_target and requested_target >= 58.0 else 70.0
+        story_s = 90.0 if requested_target is None else requested_target
     return hook_s, story_s, cta_s
 
 
@@ -339,137 +334,31 @@ def format_ass_time(sec: float) -> str:
 
 
 # -------------------------------------------------------------
-# 4. DYNAMIC OUTRO CTA SYNTHESIS (ELEVENLABS + BOOSTED BGM)
+# 4. FIXED OUTRO CTA (UNIVERSAL MASTER CTA)
 # -------------------------------------------------------------
+MASTER_CTA_PATH = ROOT_DIR / "assets" / "branding" / "wild_mechanics_master_cta.mp4"
+
 def generate_dynamic_cta_clip(
-    animal_name: str,
-    output_clip_path: Path,
+    animal_name: str = "",
+    output_clip_path: Optional[Path] = None,
     stock_bg_video: Optional[Path] = None,
     bgm_track: Optional[Path] = None,
     whisper_model: Any = None,
     bgm_volume: float = 0.35,
-    duration_s: float = 2.5,
+    duration_s: float = 3.8,
     clean_stock_bg: Optional[str] = None
 ) -> Path:
     """
-    Renders the official dynamic Outro CTA (Snappy 2.5s or full):
-    - ElevenLabs channel voice (FOLLOW -> WILD MECHANICS -> FOR MORE)
-    - Mixed background music bed (volume=0.35 / -13dB with smooth fade-in/out)
-    - Centered bold Electric Yellow kinetic text bursts
+    Supplies the official Universal Outro CTA for all Wild Mechanics videos.
+    Future videos must use the single checked-in master CTA asset.
     """
-    temp_dir = output_clip_path.parent / "temp_cta"
-    temp_dir.mkdir(parents=True, exist_ok=True)
-    clean_slug = re.sub(r'[^a-zA-Z0-9_]', '_', animal_name)
-    voice_audio = temp_dir / f"cta_voice_{clean_slug}.wav"
+    out_file = Path(output_clip_path) if output_clip_path else MASTER_CTA_PATH
+    out_file.parent.mkdir(parents=True, exist_ok=True)
     
-    # 1. Voice Synthesis (Snappy 2.5s CTA)
-    cta_script = "Follow Wild Mechanics for more."
-    eleven_key = os.environ.get("ELEVENLABS_API_KEY")
-    eleven_voice_id = os.environ.get("ELEVENLABS_VOICE_ID", "3zYzgGucDBahVReFU64R")
-    
-    voice_ready = False
-    if eleven_key:
-        headers = {"xi-api-key": eleven_key, "Content-Type": "application/json"}
-        data = {
-            "text": cta_script,
-            "model_id": "eleven_multilingual_v2",
-            "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
-        }
-        try:
-            res = requests.post(f"https://api.elevenlabs.io/v1/text-to-speech/{eleven_voice_id}", json=data, headers=headers, timeout=10)
-            if res.status_code == 200 and len(res.content) > 1000:
-                raw_mp3 = temp_dir / f"cta_raw_{clean_slug}.mp3"
-                raw_mp3.write_bytes(res.content)
-                subprocess.run(["ffmpeg", "-y", "-i", str(raw_mp3), "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", str(voice_audio)], check=True)
-                voice_ready = True
-        except Exception:
-            pass
+    if not MASTER_CTA_PATH.exists() or MASTER_CTA_PATH.stat().st_size <= 10000:
+        raise FileNotFoundError(f"Master CTA missing or invalid: {MASTER_CTA_PATH}")
 
-    if not voice_ready:
-        stock_cta = ROOT_DIR / "assets" / "audio" / "cta" / "short_cta_voice.wav"
-        cached_cta = ROOT_DIR / "projects" / "grizzly_bear" / "assets" / "short_cta_voice.mp3"
-        
-        if stock_cta.exists() and stock_cta.stat().st_size > 1000:
-            subprocess.run(["ffmpeg", "-y", "-i", str(stock_cta), "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", str(voice_audio)], check=True)
-            voice_ready = True
-        elif cached_cta.exists() and cached_cta.stat().st_size > 1000:
-            subprocess.run(["ffmpeg", "-y", "-i", str(cached_cta), "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", str(voice_audio)], check=True)
-            voice_ready = True
-        else:
-            # Fallback to pure silent/ambient stereo bed
-            cmd_null_vo = ["ffmpeg", "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", str(duration_s), "-c:a", "pcm_s16le", str(voice_audio)]
-            subprocess.run(cmd_null_vo, check=True)
-            voice_ready = True
-            
-    # 2. Build Centered ASS Kinetic Bursts (FOLLOW -> WILD MECHANICS -> FOR MORE)
-    cta_ass = temp_dir / "short_cta.ass"
-    cta_ass_content = """[Script Info]
-ScriptType: v4.00+
-PlayResX: 1080
-PlayResY: 1920
-ScaledBorderAndShadow: yes
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: CenterWord,Impact,76,&H0000FFFF,&H0000FFFF,&H00000000,&H80000000,-1,0,0,0,100,100,2,0,1,6,3,5,40,40,0,1
-Style: WhiteWord,Impact,76,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,-1,0,0,0,100,100,2,0,1,6,3,5,40,40,0,1
-
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:00.00,0:00:00.75,WhiteWord,,0,0,0,,FOLLOW
-Dialogue: 0,0:00:00.75,0:00:01.60,CenterWord,,0,0,0,,WILD MECHANICS
-Dialogue: 0,0:00:01.60,0:00:02.50,CenterWord,,0,0,0,,FOR MORE.
-"""
-    cta_ass.write_text(cta_ass_content, encoding="utf-8")
-    
-    # 3. Background Video Selection
-    bg_video = None
-    if stock_bg_video and Path(stock_bg_video).exists():
-        bg_video = Path(stock_bg_video)
-    elif clean_stock_bg and (ROOT_DIR / clean_stock_bg).exists():
-        bg_video = ROOT_DIR / clean_stock_bg
-    else:
-        # Default to bear CTA bg or generate a clean ambient background
-        fallback_bg = ROOT_DIR / "projects" / "grizzly_bear" / "assets" / "clean_bear_cta_bg.mp4"
-        if fallback_bg.exists():
-            bg_video = fallback_bg
-        else:
-            bg_video = temp_dir / "cta_ambient_bg.mp4"
-            cmd_gen = ["ffmpeg", "-y", "-f", "lavfi", "-i", f"color=c=black:s=1080x1920:d={duration_s:.2f}", "-c:v", "libx264", "-t", str(duration_s), str(bg_video)]
-            subprocess.run(cmd_gen, check=True)
-
-    if bgm_track is None or not Path(bgm_track).exists():
-        stock_bgm = ROOT_DIR / "assets" / "audio" / "bgm" / "nature_suspense_bgm.wav"
-        if stock_bgm.exists():
-            bgm_track = stock_bgm
-        else:
-            bgm_fallback = temp_dir / "cta_bgm_fallback.wav"
-            cmd_null_bgm = ["ffmpeg", "-y", "-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo", "-t", str(duration_s), str(bgm_fallback)]
-            subprocess.run(cmd_null_bgm, check=True)
-            bgm_track = bgm_fallback
-
-    # 4. Render CTA Video
-    escaped_ass = cta_ass.resolve().as_posix().replace(":", "\\:")
-    filter_complex = (
-        "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fade=t=in:st=0.0:d=0.2,eq=brightness=-0.10:contrast=1.05:saturation=1.12[bg];"
-        f"[bg]ass='{escaped_ass}'[v];"
-        "[1:a]volume=1.4,aformat=sample_rates=48000:channel_layouts=stereo[vo];"
-        f"[2:a]volume={bgm_volume:.2f},aformat=sample_rates=48000:channel_layouts=stereo,afade=t=in:st=0.0:d=0.2,afade=t=out:st={duration_s-0.5:.2f}:d=0.5[bgm];"
-        f"[vo][bgm]amix=inputs=2:duration=longest:dropout_transition=0,atrim=0:{duration_s:.2f},apad=whole_dur={duration_s:.2f}[a]"
-    )
-    
-    cmd = [
-        "ffmpeg", "-y",
-        "-ss", "0.5",
-        "-t", str(duration_s),
-        "-i", str(Path(bg_video).resolve()),
-        "-i", str(Path(voice_audio).resolve()),
-        "-i", str(Path(bgm_track).resolve()),
-        "-filter_complex", filter_complex,
-        "-map", "[v]", "-map", "[a]",
-        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
-        "-c:a", "aac", "-b:a", "320k",
-        str(Path(output_clip_path).resolve())
-    ]
-    subprocess.run(cmd, check=True)
-    return output_clip_path
+    if MASTER_CTA_PATH.exists() and str(out_file.resolve()) != str(MASTER_CTA_PATH.resolve()):
+        import shutil
+        shutil.copyfile(MASTER_CTA_PATH, out_file)
+    return out_file

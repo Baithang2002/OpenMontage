@@ -43,10 +43,14 @@
 >    * **Pacing:** Completes naturally followed by a **$0.8\text{s}$ smooth black fade-out** at $57.7\text{s} - 58.5\text{s}$.
 >    * **Subtitles:** ASS kinetic karaoke at vertical safe-zone ($Y \approx 1460$).
 > 
-> 3. **Act 3: Dynamic Outro CTA ($58.5\text{s} – 61.0\text{s} = 2.5\text{s}$):**
->    * **Visual:** Topic-matched high-res animal stock footage.
->    * **Audio:** ElevenLabs voiceover (*"Follow Wild Mechanics for more."*) with **volume normalized to $-14\text{ LUFS}$** to perfectly match the documentary voiceover volume + Boosted Background Music (`volume=0.35`).
->    * **Subtitles:** Kinetic bursts: `FOLLOW` $\to$ `WILD MECHANICS` $\to$ `FOR MORE.`
+> 3. **Act 3: Universal Master Outro CTA (3.8s)**
+>    - **Single Master Asset:** `assets/branding/wild_mechanics_master_cta.mp4` (standardized single clip used universally across all videos).
+>    - **Voiceover Script:** *"Subscribe to Wild Mechanics for more wild wonders!"*
+>    - **Audio Mix:** Normalized to `-14 LUFS` (`loudnorm=I=-14:TP=-1.5:LRA=11`) to match narrator volume seamlessly + Boosted Background Music (`volume=0.35` / `-13 dB`).
+>    - **Visual Typography & Badges:**
+>      - `LIKE & SUBSCRIBE` in Diamond White (Impact 72).
+>      - Large highlighted **`[ ▶ SUBSCRIBE 🔔 ]`** YouTube Red pill button (`assets/branding/subscribe_button_pill.png`).
+>      - `WILD MECHANICS` in Electric Yellow (Impact 72) + `FOR MORE WILD WONDERS!` (Arial 42).
 > 
 > **Total Master Duration:** Strictly **`61.00s – 61.20s`** (Displayed as **`1:01`** on YouTube Shorts).
 
@@ -97,13 +101,10 @@
 
 ---
 
-## 📣 6. Dynamic Topic-Matched CTA (Reference: `u0TVV-v1Skg`)
+## 📣 6. Fixed Master CTA
 
-* **Duration:** Dedicated **2.5s – 3.0s Outro Clip** stitched at the end of the video.
-* **Topic-Matched Video Background:** Sourced from **100% clean, watermark-free high-resolution stock video** specifically matching the featured animal.
-* **Voiceover Script:** Punchy closing biological superpower statement + channel follow invite:
-  > *"Nature is full of hidden biological superpowers, just like this one. Follow Wild Mechanics for more."*
-* **Visual Typography (`u0TVV-v1Skg` Style):** Centered, bold kinetic word bursts in Electric Yellow (`FOLLOW` $\rightarrow$ `WILD MECHANICS` $\rightarrow$ `FOR MORE.`) without static boxed cards.
+* **Single Master Asset:** `assets/branding/wild_mechanics_master_cta.mp4` is the only CTA used for all future videos.
+* **No Dynamic CTA Fallback:** Production fails if the master CTA is missing or invalid, instead of generating a new outro.
 
 ---
 
