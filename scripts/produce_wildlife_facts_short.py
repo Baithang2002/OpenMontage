@@ -355,6 +355,27 @@ def search_and_download_pexels(query: str, dest_path: Path) -> bool:
     return False
 
 
+def download_ytdlp_clip(query: str, dest_path: Path, duration: float = 8.0) -> bool:
+    print(f"📥 Sourcing action clip via yt-dlp for '{query}'...")
+    cmd = [
+        "yt-dlp",
+        f"ytsearch1:{query} wildlife",
+        "--download-sections", f"*00:00:15-00:00:{int(15 + duration):02d}",
+        "--force-keyframes-at-cuts",
+        "-f", "bestvideo[height<=1080][ext=mp4]/best[ext=mp4]/best",
+        "--merge-output-format", "mp4",
+        "--extractor-args", "youtube:player_client=android,ios,mweb",
+        "--no-check-certificates",
+        "-o", str(dest_path)
+    ]
+    try:
+        subprocess.run(cmd, check=True, timeout=35)
+        return dest_path.exists() and dest_path.stat().st_size > 50000
+    except Exception as e:
+        print(f"[WARN] yt-dlp acquisition failed for '{query}': {e}")
+        return False
+
+
 def acquire_broll_clips(queries: List[str], assets_dir: Path, total_duration: float) -> List[Path]:
     clips_dir = assets_dir / "broll_clips"
     clips_dir.mkdir(parents=True, exist_ok=True)
@@ -366,9 +387,11 @@ def acquire_broll_clips(queries: List[str], assets_dir: Path, total_duration: fl
     for i, q in enumerate(queries):
         clip_target = clips_dir / f"clip_{i:02d}.mp4"
         success = search_and_download_pexels(q, clip_target)
+        if not success:
+            success = download_ytdlp_clip(q, clip_target, slot_dur)
         if success:
             acquired_clips.append(clip_target)
-            print(f"🎬 Acquired Stock B-Roll for '{q}': {clip_target.name}")
+            print(f"🎬 Acquired B-Roll for '{q}': {clip_target.name}")
 
     # Fallback to local stock/music if needed
     if len(acquired_clips) < 2:
