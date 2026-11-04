@@ -1,11 +1,9 @@
 name: Daily Autonomous Wildlife Short
 
 on:
-  workflow_dispatch:      # Manual trigger only — schedule PAUSED (uncomment below to re-enable)
-  # schedule:  # ponytail: disabled to stop auto-uploads, re-enable by uncommenting 3 cron lines
-  #   - cron: '30 6 * * *'   # Slot 1: 06:30 UTC
-  #   - cron: '30 13 * * *'  # Slot 2: 13:30 UTC
-  #   - cron: '30 20 * * *'  # Slot 3: 20:30 UTC
+  workflow_dispatch:      # Manual one-click trigger anytime from GitHub Actions UI
+  schedule:
+    - cron: '30 13 * * *'  # 13:30 UTC daily (7:00 PM IST - Prime Peak Shorts Upload Time)
 
 permissions:
   contents: write
@@ -13,6 +11,7 @@ permissions:
 jobs:
   produce-and-publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout Repository
@@ -26,19 +25,18 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install FFmpeg, Libass, Fonts & Deno
+      - name: Install FFmpeg, Libass & Fonts
         run: |
           sudo apt-get update -qq
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg libass-dev fonts-liberation fonts-dejavu-core fontconfig curl
-          curl -fsSL https://deno.land/install.sh | sh
-          echo "$HOME/.deno/bin" >> $GITHUB_PATH
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            ffmpeg libass-dev fonts-liberation fonts-dejavu-core fontconfig curl
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install python-dotenv pillow requests yt-dlp google-api-python-client google-auth-oauthlib faster-whisper gdown
+          pip install python-dotenv pillow requests yt-dlp google-api-python-client google-auth-oauthlib faster-whisper gdown edge-tts
 
-      - name: Execute Daily Short & Publish to YouTube
+      - name: Execute 100% Autonomous Fact Short & Publish
         env:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID || secrets.YOUTUBE_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET || secrets.YOUTUBE_CLIENT_SECRET }}
@@ -46,24 +44,23 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YT_CLIENT_ID || secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET || secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN || secrets.YOUTUBE_REFRESH_TOKEN }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID || secrets.FACEBOOK_PAGE_ID }}
-          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN || secrets.FACEBOOK_ACCESS_TOKEN }}
+          DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ID: ${{ secrets.ELEVENLABS_VOICE_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          ELEVENLABS_VOICE_ID: ${{ secrets.ELEVENLABS_VOICE_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python scripts/daily_autonomous_production.py --upload --notify
+          python scripts/produce_wildlife_facts_short.py --upload --notify
 
-      - name: Commit Updated Queue Index
+      - name: Commit Published Animal History
         if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add config/wildlife_story_queue.json
-          git diff-index --quiet HEAD || git commit -m "chore: advance wildlife story queue index [skip ci]"
+          git add config/published_animals.json config/last_generated_episode.json
+          git diff-index --quiet HEAD || git commit -m "chore: record published wildlife short [skip ci]"
           git push

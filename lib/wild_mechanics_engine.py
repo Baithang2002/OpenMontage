@@ -22,6 +22,41 @@ except ImportError:
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 
+_NVENC_OK = None
+
+def _nvenc_works() -> bool:
+    try:
+        r = subprocess.run(
+            ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+             "-f", "lavfi", "-i", "testsrc=size=320x240:rate=10:duration=0.5",
+             "-c:v", "h264_nvenc", "-preset", "p4", "-f", "mp4", "NUL"],
+            capture_output=True, text=True, timeout=30)
+        return r.returncode == 0
+    except Exception:
+        return False
+
+def video_codec_args():
+    """NVENC > QSV > libx264. ponytail: one cached probe; NVENC runtime-smoked (old drivers lie)."""
+    global _NVENC_OK
+    if _NVENC_OK is None:
+        try:
+            out = subprocess.run(["ffmpeg", "-hide_banner", "-encoders"],
+                                 capture_output=True, text=True, timeout=15)
+            enc = out.stdout or ""
+        except Exception:
+            enc = ""
+        if "h264_nvenc" in enc and _nvenc_works():
+            _NVENC_OK = "nvenc"
+        elif "h264_qsv" in enc:
+            _NVENC_OK = "qsv"
+        else:
+            _NVENC_OK = "x264"
+    if _NVENC_OK == "nvenc":
+        return ["-c:v", "h264_nvenc", "-preset", "p4", "-cq", "19", "-pix_fmt", "yuv420p"]
+    if _NVENC_OK == "qsv":
+        return ["-c:v", "h264_qsv", "-preset", "veryfast", "-q", "22", "-pix_fmt", "nv12"]
+    return ["-c:v", "libx264", "-crf", "18", "-preset", "fast", "-pix_fmt", "yuv420p"]
+
 def is_bbc_source(file_path: Path | str) -> bool:
     """Detects if a media file is from BBC based on filename prefix/tag."""
     name = Path(file_path).name.lower()
@@ -90,7 +125,7 @@ def generate_cold_hook_clip(
         "-ss", str(hook_cut_start),
         "-t", str(hook_cut_duration),
         "-i", str(doc_source),
-        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+        *video_codec_args(),
         "-filter:a", f"asetrate=48000*{pitch_factor},atempo=1/{pitch_factor},loudnorm=I=-14:TP=-1.5:LRA=11",
         "-c:a", "aac", "-b:a", "320k",
         str(hook_raw)
@@ -122,7 +157,7 @@ Dialogue: 1,0:00:00.00,0:00:03.00,TopTitle,,0,0,0,,{{\\fad(100,100)}}{hook_title
         "-i", str(hook_raw),
         "-filter_complex", hook_filter,
         "-map", "[v]", "-map", "0:a",
-        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+        *video_codec_args(),
         "-c:a", "aac", "-b:a", "320k",
         str(output_clip_path)
     ]
