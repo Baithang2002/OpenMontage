@@ -15,9 +15,9 @@ on:
         description: 'Schedule for optimal viewing time (14:00 UTC)'
         type: boolean
         default: true
-  schedule:
-    - cron: '30 8 * * *'   # Slot 1: 08:30 UTC (2:00 PM IST / 3:30 AM EST)
-    - cron: '30 14 * * *'  # Slot 2: 14:30 UTC (8:00 PM IST / 9:30 AM EST)
+  # schedule:
+  #   - cron: '30 8 * * *'   # Slot 1: 08:30 UTC (2:00 PM IST / 3:30 AM EST)
+  #   - cron: '30 14 * * *'  # Slot 2: 14:30 UTC (8:00 PM IST / 9:30 AM EST)
 
 permissions:
   contents: write
