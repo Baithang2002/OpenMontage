@@ -65,6 +65,12 @@ class YouTubeUploader(BaseTool):
         except ImportError:
             raise RuntimeError("google-api-python-client and google-auth-oauthlib are required.")
 
+        try:
+            import dotenv
+            dotenv.load_dotenv()
+        except ImportError:
+            pass
+
         client_id = os.environ.get("YOUTUBE_CLIENT_ID") or os.environ.get("YT_CLIENT_ID")
         client_secret = os.environ.get("YOUTUBE_CLIENT_SECRET") or os.environ.get("YT_CLIENT_SECRET")
         refresh_token = os.environ.get("YOUTUBE_REFRESH_TOKEN") or os.environ.get("YT_REFRESH_TOKEN")
@@ -79,7 +85,10 @@ class YouTubeUploader(BaseTool):
                 token_uri="https://oauth2.googleapis.com/token",
                 client_id=client_id,
                 client_secret=client_secret,
-                scopes=["https://www.googleapis.com/auth/youtube.upload"],
+                scopes=[
+                    "https://www.googleapis.com/auth/youtube.upload",
+                    "https://www.googleapis.com/auth/youtube.readonly",
+                ],
             )
         elif token_file.exists():
             creds = Credentials.from_authorized_user_file(str(token_file))

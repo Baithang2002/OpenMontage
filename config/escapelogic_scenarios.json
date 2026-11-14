@@ -1,0 +1,206 @@
+{
+  "version": "1.0",
+  "channel": "EscapeLogic",
+  "tagline": "Survival by Physics",
+  "scenarios": [
+    {
+      "id": "elevator_freefall",
+      "episode_num": 1,
+      "topic": "Falling Elevator",
+      "status": "published",
+      "title_hook": "WHY JUMPING IN A FALLING ELEVATOR FAILS ⚠️",
+      "yt_title": "Why Jumping In a Falling Elevator Kills You 😱 #EscapeLogic #Shorts",
+      "description": "Can you survive a falling elevator by jumping right before impact?\n\nHere is the brutal vector physics: If the elevator hits the ground at 50 MPH (80 km/h) and you jump up at 5 MPH (8 km/h), your body still hits the floor at 45 MPH. Plus, in freefall you are weightless — with no floor traction to push off!\n\nThe true survival logic: Lie flat on your back on the floor, cushion your head, and distribute the impact force across your entire body surface.\n\nSubscribe to EscapeLogic for survival science, extreme physics, and animated breakdowns every week.\n\n#EscapeLogic #SurvivalFacts #Physics #Science #YouTubeShorts #Shorts #Animation #MythBusters",
+      "tags": [
+        "EscapeLogic",
+        "elevator",
+        "physics",
+        "survival",
+        "science",
+        "animation",
+        "shorts",
+        "mythbusters",
+        "educational",
+        "vector physics"
+      ],
+      "youtube_video_id": "Lz1OB59D9jE",
+      "youtube_video_url": "https://youtube.com/shorts/Lz1OB59D9jE"
+    },
+    {
+      "id": "sinking_car_door_trap",
+      "episode_num": 2,
+      "topic": "Sinking Car",
+      "status": "pending",
+      "title_hook": "NEVER OPEN THE DOOR OF A SINKING CAR 🚗🌊",
+      "yt_title": "Never Try To Open A Sinking Car Door 🌊🚗 #EscapeLogic #Shorts",
+      "description": "Your car just plunged into deep water. Your instinct says: push the door open immediately. Doing that will drown you.\n\nHere is why: Differential hydrostatic pressure against the car door equals over 850 pounds of force while the cabin is full of air. You physically cannot push it open.\n\nThe Escape Logic: Roll down the window instantly while electronics still work, or shatter the tempered side glass with a headrest prong. Never wait for the car to fill with water.\n\nSubscribe to EscapeLogic for survival physics and emergency logic.\n\n#EscapeLogic #Survival #Physics #Science #Cars #Emergency #Shorts",
+      "tags": [
+        "EscapeLogic",
+        "sinking car",
+        "survival physics",
+        "hydrostatic pressure",
+        "emergency escape",
+        "science",
+        "car safety",
+        "shorts"
+      ],
+      "narration_full": "Your car just crashed into deep water. Your survival instinct tells you: shove the car door open immediately. Doing that will kill you. Here is the brutal fluid physics. Water outside exerts over eight hundred and fifty pounds of hydrostatic pressure against the door. Human legs can only push about three hundred pounds. You physically cannot open it. Worse, as water floods the engine, your electrical system shorts in under sixty seconds. The true escape logic: Forget the door. Undo your seatbelt immediately, roll down the window while power lasts, and swim out. If the window jams, detach your seat headrest and use the steel prongs to strike the bottom corner of the side window. It shatters instantly. Subscribe to EscapeLogic for survival science and extreme physics!",
+      "visual_queries": [
+        "car sinking deep water",
+        "driver underwater car escape",
+        "breaking car window safety",
+        "water flooding windshield"
+      ]
+    },
+    {
+      "id": "quicksand_liquefaction_trap",
+      "episode_num": 3,
+      "topic": "Quicksand",
+      "status": "pending",
+      "title_hook": "THE QUICKSAND TRAP THAT DROWNS PEOPLE ⚠️⏳",
+      "yt_title": "The Brutal Physics Of Quicksand ⚠️⏳ #EscapeLogic #Shorts",
+      "description": "Trapped in quicksand? Panicking and thrashing makes you sink twice as fast.\n\nHere is the fluid mechanics: Quicksand is a non-Newtonian shear-thinning slurry. Moving violently breaks the friction between sand grains, turning solid ground into liquid. To pull one foot out requires the lifting force needed to lift a mid-size car (over 2,200 lbs)!\n\nThe Escape Logic: Stop thrashing. Lean back slowly into a floating posture. Human body density is 1.0 g/cm³, while quicksand density is 2.0 g/cm³. Physics guarantees you cannot sink past your chest if you spread your surface area.\n\nSubscribe to EscapeLogic for survival physics!\n\n#EscapeLogic #Quicksand #Physics #SurvivalScience #Shorts #EarthScience",
+      "tags": [
+        "EscapeLogic",
+        "quicksand",
+        "non newtonian fluid",
+        "physics",
+        "survival science",
+        "earth science",
+        "shorts"
+      ],
+      "narration_full": "Movies told you quicksand pulls you all the way down until you vanish. Physics says that is a lie, but panicking still kills you. Here is how it actually works. Quicksand is a non-Newtonian shear-thinning fluid. When you kick and thrash, you apply shear stress, turning the sand grains into pure liquid and sinking deeper. Once the sand settles back around your legs, pulling a single foot out requires over twenty-two hundred pounds of force. That is enough to tear your ligaments. The true escape logic: Stop moving your legs. Slowly lean back onto your spine, opening your arms wide. Human density is half the density of water-saturated sand. Physics guarantees you will float. Once buoyant, gently backstroke out like you are swimming in water. Subscribe to EscapeLogic for survival science!",
+      "visual_queries": [
+        "stepping in mud marsh quicksand",
+        "mud slurry close up",
+        "person floating back water",
+        "marshland swamp danger"
+      ]
+    },
+    {
+      "id": "rip_current_velocity_trap",
+      "episode_num": 4,
+      "topic": "Rip Current",
+      "status": "pending",
+      "title_hook": "WHY SWIMMING TO SHORE IN A RIP CURRENT DROWNS YOU 🌊",
+      "yt_title": "Why Swimming To Shore Drowns You In A Rip Current 🌊 #EscapeLogic #Shorts",
+      "description": "Caught in a rip current? Swimming directly back to the beach causes fatal cardiac exhaustion in under 4 minutes.\n\nHere is the hydrodynamic vector: A rip current travels seaward at up to 8 feet per second. Olympic gold medalists swim at 5.5 feet per second. You cannot beat the ocean vector.\n\nThe Escape Logic: Swim perpendicular (90 degrees parallel to the beach) to exit the narrow neck of the current, or float calmly until the jet dissipates beyond the breakers.\n\nSubscribe to EscapeLogic for survival physics!\n\n#EscapeLogic #RipCurrent #OceanSafety #Physics #Survival #Shorts",
+      "tags": [
+        "EscapeLogic",
+        "rip current",
+        "ocean safety",
+        "fluid dynamics",
+        "survival tips",
+        "beach safety",
+        "shorts"
+      ],
+      "narration_full": "You are swimming in the ocean, and suddenly the beach is racing away from you. Your panic instinct kicks in: swim as hard as possible straight back to shore. That instinct is the number one cause of ocean drownings. Here is the hydrodynamic math. A rip current channels offshore at up to eight feet per second. The fastest Olympic swimmer on Earth maxes out at five and a half feet per second. Trying to fight that vector guarantees total muscle exhaustion and drowning within three minutes. The true escape logic: Never fight the current seaward. Rip currents are extremely narrow corridors, usually less than fifty feet wide. Turn ninety degrees and swim parallel to the shore. In under thirty strokes, you exit the jet, catch breaking waves, and ride them safely to the beach. Subscribe to EscapeLogic for survival science!",
+      "visual_queries": [
+        "ocean rip current aerial",
+        "swimmer struggling deep water waves",
+        "parallel swimming beach ocean",
+        "breaking waves surf shore"
+      ]
+    },
+    {
+      "id": "lightning_step_potential_trap",
+      "episode_num": 5,
+      "topic": "Lightning Strike",
+      "status": "pending",
+      "title_hook": "WHY LYING FLAT IN A LIGHTNING STORM IS DEADLY ⚡",
+      "yt_title": "Why Lying Flat In A Lightning Storm Kills You ⚡ #EscapeLogic #Shorts",
+      "description": "Caught in an open field during a thunderstorm? People used to say 'lie flat on the ground'. Modern electrical engineering proves that is lethal.\n\nHere is the physics of Step Potential (Earth Voltage Gradient): When lightning strikes ground, current radiates outward with a massive voltage drop per meter. If your body spans 2 meters on the ground, hundreds of thousands of volts travel directly across your vital organs.\n\nThe Escape Logic: Crouch into a ball with your feet touching together, hands over ears, balancing on the balls of your feet. Minimal contact area + zero voltage gap between your feet = survival.\n\nSubscribe to EscapeLogic for survival physics!\n\n#EscapeLogic #Lightning #ElectricalPhysics #Survival #Weather #Shorts",
+      "tags": [
+        "EscapeLogic",
+        "lightning",
+        "step potential",
+        "electrical engineering",
+        "storm safety",
+        "physics",
+        "shorts"
+      ],
+      "narration_full": "If lightning is about to strike and you are caught in an open field, your hair stands on end and the air tastes like metal. An old myth told people to lie flat on the grass. Doing that makes your death almost certain. Here is the electrical physics of step potential. When a lightning bolt strikes, three hundred thousand volts radiate outward through the topsoil in concentric circles. If you are lying flat, there is a massive voltage difference between your head and your toes, causing lethal current to surge directly across your heart. The true escape logic: Crouch into a tight ball, tuck your head down, and press both of your heels tightly together. Balancing on the balls of your feet gives lightning only one tiny entry point, with zero voltage gap between your feet to drive current through your chest. Subscribe to EscapeLogic for survival science!",
+      "visual_queries": [
+        "lightning striking field thunderstorm",
+        "hair standing on end static",
+        "person crouching storm safety",
+        "dark storm clouds thunder"
+      ]
+    },
+    {
+      "id": "parachute_terminal_velocity_physics",
+      "episode_num": 6,
+      "topic": "Parachute Malfunction",
+      "status": "pending",
+      "title_hook": "HOW TO SURVIVE FALLING FROM 15,000 FEET 🪂💥",
+      "yt_title": "How Humans Survive Falling Without A Parachute 🪂 #EscapeLogic #Shorts",
+      "description": "Falling from the sky with zero parachute? A dozen people in human history have survived. All of them used vector aerodynamics.\n\nHere is the physics: In a belly-to-earth arch with spread limbs, your terminal velocity caps at 120 MPH (54 m/s). By steering toward steep snow slopes, dense pine tree canopies, or marshland, you extend the impact deceleration distance (F = ma and Work = Force x Distance).\n\nThe Escape Logic: Maximize surface area during fall, target sloping terrain, land feet-first with bent knees in a Parachute Landing Fall (PLF) to sacrifice your lower leg bones and protect your skull and spine.\n\nSubscribe to EscapeLogic for survival physics!\n\n#EscapeLogic #TerminalVelocity #Skydive #Physics #SurvivalScience #Shorts",
+      "tags": [
+        "EscapeLogic",
+        "terminal velocity",
+        "skydive fail",
+        "physics",
+        "aerodynamics",
+        "survival",
+        "shorts"
+      ],
+      "narration_full": "You are falling from fifteen thousand feet, and both your main and reserve parachutes fail to open. You have roughly ninety seconds of life left. Over twenty people in recorded history have survived this exact nightmare. Here is the physics that saved them. First, spread your arms and legs wide in a belly-to-earth arch. This maximizes aerodynamic drag, locking your terminal velocity at one hundred and twenty miles per hour instead of two hundred. Second, look down and steer your body by angling your hands. Avoid water at all costs. Hitting water at terminal velocity is identical to smashing into solid concrete because water cannot compress fast enough. Aim for steep snow hillsides, dense pine tree canopies, or swamp mud. Third, at the final second, rotate vertical and land feet first with bent knees. Sacrificing your leg bones cushions your spine and heart. Subscribe to EscapeLogic for survival science!",
+      "visual_queries": [
+        "skydiver freefall sky clouds",
+        "aerodynamic belly to earth arch",
+        "pine forest canopy aerial",
+        "snow mountain steep slope"
+      ]
+    },
+    {
+      "id": "wildfire_uphill_convection_trap",
+      "episode_num": 7,
+      "topic": "Wildfire",
+      "status": "pending",
+      "title_hook": "NEVER RUN UPHILL FROM A WILDFIRE 🔥⛰️",
+      "yt_title": "Why Running Uphill From A Wildfire Kills You 🔥 #EscapeLogic #Shorts",
+      "description": "Trapped in a forest fire? Running uphill to high ground feels natural. It is a deadly thermodynamic trap.\n\nHere is the physics: Heat rises. Fire preheats uphill vegetation through convective heat transfer and radiant flux, causing uphill slopes to ignite up to 16 times faster than flat ground!\n\nThe Escape Logic: Run downhill, crosswind, or run directly through the flame front into the 'black' (already-burned terrain where zero fuel remains).\n\nSubscribe to EscapeLogic for survival physics!\n\n#EscapeLogic #Wildfire #Thermodynamics #Physics #ForestFire #Survival #Shorts",
+      "tags": [
+        "EscapeLogic",
+        "wildfire",
+        "thermodynamics",
+        "fire safety",
+        "convection",
+        "survival physics",
+        "shorts"
+      ],
+      "narration_full": "A wildfire is tearing through the canyon, and smoke is blinding your vision. Your human instinct screams to sprint uphill to high ground. Doing that walks you straight into an incinerator. Here is the thermodynamic physics. Heat rises. As fire burns at the base of a hill, superheated convective gases funnel up the slope like an open chimney, pre-baking all the trees above it to flashpoint temperature. For every ten degrees of slope increase, fire doubles its speed. An uphill fire can sprint at thirty miles per hour, easily outpacing any human. The true escape logic: Run downhill or traverse horizontally across the wind. If cut off, find an area with low brush, cover your face with cotton, and sprint straight through a narrow flame wall into the burned black zone. Once ground has already burned, it has zero fuel left to hurt you. Subscribe to EscapeLogic for survival science!",
+      "visual_queries": [
+        "raging wildfire mountain slope",
+        "flames rushing uphill smoke",
+        "burned black charred ground",
+        "firefighter emergency escape"
+      ]
+    },
+    {
+      "id": "high_speed_brake_failure",
+      "episode_num": 8,
+      "topic": "Brake Failure",
+      "status": "pending",
+      "title_hook": "WHAT TO DO WHEN BRAKES FAIL AT 70 MPH 🛑🚗",
+      "yt_title": "What To Do If Your Brakes Fail At 70 MPH 🛑 #EscapeLogic #Shorts",
+      "description": "Cruising down the highway when your brake pedal sinks to the floor with zero resistance. Stomping on the pedal won't help.\n\nHere is the kinetic physics: A 4,000 lb vehicle at 70 MPH carries over 800,000 Joules of kinetic energy. Tearing out the steering wheel or putting it in park will flip the vehicle.\n\nThe Escape Logic: Pump the brake pedal rapidly to rebuild hydraulic pressure; downshift manually to utilize engine braking; gradually engage the mechanical parking brake; use guardrails for progressive friction deceleration.\n\nSubscribe to EscapeLogic for survival physics!\n\n#EscapeLogic #BrakeFailure #CarSafety #KineticEnergy #Physics #Shorts",
+      "tags": [
+        "EscapeLogic",
+        "brake failure",
+        "car mechanics",
+        "kinetic energy",
+        "highway safety",
+        "driving physics",
+        "shorts"
+      ],
+      "narration_full": "You are flying down the highway at seventy miles per hour, you tap the brakes, and the pedal goes completely limp to the floor. Most drivers panic and yank the steering wheel or slam into park, causing a violent rollover. Here is the mechanical physics to survive. First, pump the pedal rapidly. Dual-circuit master cylinders can sometimes rebuild hydraulic pressure. If that fails, do not cut the ignition. Turning the key off locks your steering wheel and kills power steering. Instead, shift your transmission down to low gear. Engine compression acts as a massive mechanical brake, bleeding off half your kinetic energy. Next, slowly pull the mechanical emergency brake with the release button held down. If you run out of road, scrape the vehicle body against a roadside metal guardrail. Steel on steel creates controlled progressive friction, stopping two tons of metal safely. Subscribe to EscapeLogic for survival science!",
+      "visual_queries": [
+        "car speeding highway speedometer",
+        "driver pressing brake pedal limp",
+        "hand shifting car downshift",
+        "guardrail road friction highway"
+      ]
+    }
+  ]
+}
